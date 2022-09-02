@@ -32,6 +32,8 @@ dependencies:
   flutter_riverpod: ^1.0.4
   youtube_player_flutter: ^8.1.0
   get: ^4.6.5
+  moor_flutter:
+  fluttertoast: ^8.0.9
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +45,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  moor_generator:
+  build_runner:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

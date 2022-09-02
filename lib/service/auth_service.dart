@@ -20,8 +20,8 @@ class AuthService {
      }
   }
 
-  Future<MovieModel?> getPopularMovies() async {
-    var response = await http.get(Uri.parse(Utils.popularMoviesUrl));
+  Future<MovieModel?> getPopularMovies(int page) async {
+    var response = await http.get(Uri.parse("${Utils.popularMoviesUrl}&page=$page"));
     if(response.statusCode == 200){
       var json = jsonDecode(response.body);
       return MovieModel.fromJson(json);

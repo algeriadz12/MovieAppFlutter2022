@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:pop_corn_flix/models/genres/MovieGenre.dart';
+import 'package:pop_corn_flix/moor/moor_helper.dart';
 import 'package:pop_corn_flix/notifiers/movie_controller.dart';
 
 import '../models/details/Genres.dart';
@@ -12,8 +14,7 @@ class DetailsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var args = Get.arguments;
-    var movieId = args[0]['movieId'];
+    var movieId = Get.arguments[0]['movieId'];
     var genres = ref.watch(MovieController.moviesGenreProvider).value;
     var movieDetails = ref.watch(MovieController.movieDetailsProvider(movieId)).value;
     var movieCasting = ref.watch(MovieController.movieCastingProvider(movieId)).value;
@@ -52,7 +53,22 @@ class DetailsScreen extends ConsumerWidget {
                            width: 250,
                            child: Text(movieDetails.title!,style: const TextStyle(fontSize: 18,fontFamily: 'mulish_bold'),),
                          ),
-                         const Icon(Icons.bookmark_border,size: 25,color: Colors.black,)
+                          IconButton(
+                             onPressed: () async {
+                               // insert new movie to favs
+                               var result = await AppDatabase()
+                                   .insert(MovieData(
+                                   rowID: DateTime.now().millisecondsSinceEpoch,
+                                   title: movieDetails.title!,
+                                   posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
+                                   rating: movieDetails.voteAverage.toString(),
+                                   releaseDate : movieDetails.releaseDate!,
+                                   movieId: movieDetails.id!));
+                               if(result != -1){
+                                  Fluttertoast.showToast(msg: 'Movie successfully saved');
+                                }
+                             },
+                             icon: const Icon(Icons.bookmark_border,size: 25,color: Colors.black,))
                        ],
                      ),
                    ),
