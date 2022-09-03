@@ -7,6 +7,7 @@ import 'package:pop_corn_flix/models/details/DetailsModel.dart';
 import 'package:pop_corn_flix/models/genres/MovieGenre.dart';
 import 'package:pop_corn_flix/utils.dart';
 import '../models/MovieModel.dart';
+import '../models/videos/VideoModel.dart';
 
 class AuthService {
   
@@ -57,6 +58,17 @@ class AuthService {
     if(response.statusCode == 200){
       var json = jsonDecode(response.body);
       return CastModel.fromJson(json);
+    } else {
+      return null;
+    }
+  }
+
+  Future<VideoModel?> getMovieVideos(int movieId) async {
+    var url = "https://api.themoviedb.org/3/movie/$movieId/videos?api_key=bbfda310b517daeeec61e3493ab5efd8&language=en-US";
+    var response = await http.get(Uri.parse(url));
+    if(response.statusCode == 200){
+      var json = jsonDecode(response.body);
+      return VideoModel.fromJson(json);
     } else {
       return null;
     }

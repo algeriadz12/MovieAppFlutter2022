@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   IconButton(
                       onPressed: (){
-                        Get.to(() => const FavMoviesScreen());
+                        Get.to(() => FavMoviesScreen());
                       },
                       icon: const Icon(Icons.star_rate_outlined,color: Colors.orange,))
                 ],
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context,index){
                         return GestureDetector(
                           onTap: (){
-                            Get.to(() => const DetailsScreen(),
+                            Get.to(() =>  const DetailsScreen(),
                                 arguments: [
                                   {"movieId" : popularMovies.results![index].id}
                                 ]);

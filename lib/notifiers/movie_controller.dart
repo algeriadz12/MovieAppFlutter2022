@@ -6,10 +6,14 @@ import 'package:pop_corn_flix/models/MovieModel.dart';
 import 'package:pop_corn_flix/models/cast/CastModel.dart';
 import 'package:pop_corn_flix/models/details/DetailsModel.dart';
 import 'package:pop_corn_flix/models/genres/MovieGenre.dart';
+import 'package:pop_corn_flix/models/type/video_type.dart';
+import 'package:pop_corn_flix/models/videos/VideoModel.dart';
 import 'package:pop_corn_flix/service/auth_service.dart';
 
-class MovieController extends ChangeNotifier {
+import '../models/videos/Results.dart';
 
+class MovieController extends ChangeNotifier {
+   static List<Results>? list = [];
    static AuthService authService  = AuthService();
 
    static getNowShowing() {
@@ -43,4 +47,13 @@ class MovieController extends ChangeNotifier {
    static var movieCastingProvider = FutureProvider.family<CastModel?,int>((ref,movieId){
      return authService.getMovieCasting(movieId);
    });
+
+   // get data
+   static var movieVideosProvider = FutureProvider.family<List<Results>?,VideoType>((ref,videoType)  {
+      authService.getMovieVideos(videoType.movieId).then((value){
+        list = value!.results!;
+      });
+      return list!.where((element) => element.type == videoType.videoType).toList();
+   });
+
 }

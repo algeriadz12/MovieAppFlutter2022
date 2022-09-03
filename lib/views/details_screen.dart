@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:get/get.dart';
 import 'package:pop_corn_flix/models/genres/MovieGenre.dart';
 import 'package:pop_corn_flix/moor/moor_helper.dart';
 import 'package:pop_corn_flix/movie_state.dart';
 import 'package:pop_corn_flix/notifiers/movie_controller.dart';
 import 'package:pop_corn_flix/notifiers/movie_notifier.dart';
+import 'package:pop_corn_flix/views/videos_screen.dart';
 
 import '../models/details/Genres.dart';
-
+//bookmark_border
 var moviesProvider  = StateNotifierProvider((ref) => MovieNotifier(const MovieState()));
 
 class DetailsScreen extends StatefulWidget {
@@ -21,10 +22,11 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
+  var bookmark = Icons.bookmark_border;
+  bool isMovieFound = false;
   int movieId = 0;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
      movieId = Get.arguments[0]['movieId'];
   }
@@ -38,6 +40,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
           var movieDetails = ref.watch(MovieController.movieDetailsProvider(movieId)).value;
           var movieCasting = ref.watch(MovieController.movieCastingProvider(movieId)).value;
           var provider = ref.watch(moviesProvider.notifier);
+
           if(genres != null &&  movieDetails != null &&  movieCasting != null ){
             return SingleChildScrollView(
               child: Column(
@@ -74,19 +77,40 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                 child: Text(movieDetails.title!,style: const TextStyle(fontSize: 18,fontFamily: 'mulish_bold'),),
                               ),
                               IconButton(
-                                  onPressed: () async {
-                                    // insert new movie to favs
-                                    provider.writeData(MovieData(
-                                        rowID: DateTime.now().millisecondsSinceEpoch,
-                                        title: movieDetails.title!,
-                                        posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
-                                        rating: movieDetails.voteAverage.toString(),
-                                        releaseDate : movieDetails.releaseDate!,
-                                        movieId: movieDetails.id!));
-                                    Fluttertoast.showToast(msg: "Movie Successfully Saved");
+                                  onPressed: (){
+                                    provider.state.movies?.forEach((element) {
+                                      if(movieId == element.movieId){
+                                        print("called");
+                                        provider.deleteMovie(MovieData(
+                                            rowID: element.rowID,
+                                            title: movieDetails.title!,
+                                            posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
+                                            rating: movieDetails.voteAverage.toString(),
+                                            releaseDate : movieDetails.releaseDate!,
+                                            movieId: movieDetails.id!));
+                                        setState(() {
+                                          bookmark = Icons.bookmark_border;
+                                        });
+                                        return;
+                                      }
+                                      // else {
+                                      //   setState(() {
+                                      //     isMovieFound = true;
+                                      //   });
+                                      // }
+                                    });
 
                                   },
-                                  icon: const Icon(Icons.bookmark_border,size: 25,color: Colors.black,))
+                                  icon: const Icon(Icons.bookmark,size: 25,color: Colors.black,)),
+                              IconButton(
+                                  onPressed: (){
+                                    Get.to(() => const VideoScreen(),
+                                    arguments: [
+                                      {'title' : movieDetails.title},
+                                      {"movieId " : movieId}
+                                    ]);
+                                  },
+                                  icon: Image.asset("assets/icons/youtube.png"))
                             ],
                           ),
                         ),

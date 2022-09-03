@@ -39,9 +39,8 @@ class MyDatabase extends _$MyDatabase {
 
    MyDatabase() : super(_openConnection());
 
-  @override
-  // TODO: implement schemaVersion
-  int get schemaVersion => throw UnimplementedError();
+   @override
+   int get schemaVersion => 1;
 
    Future<List<MovieData>> getMovies() => select(movie).get();
    Stream<List<MovieData>> watchMovies() => select(movie).watch();
