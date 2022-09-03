@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:moor_flutter/moor_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:moor/ffi.dart';
 part 'moor_helper.g.dart';
 
 
@@ -12,11 +17,31 @@ class Movie extends Table {
 
 }
 
+
+LazyDatabase _openConnection(){
+   return LazyDatabase(() async{
+      final dbFolder = await getApplicationDocumentsDirectory();
+      final file = File(p.join(dbFolder.path,'db.sqlite'));
+      return VmDatabase(file);
+   });
+}
+
 @UseMoor(tables: [Movie])
-class AppDatabase extends _$AppDatabase {
-   AppDatabase() : super(FlutterQueryExecutor.inDatabaseFolder(
-       path: "db.sqlite", logStatements: true));
-   int get schemaVersion => 1;
+class MyDatabase extends _$MyDatabase {
+   static MyDatabase? _instance;
+
+   static MyDatabase? getInstance(){
+       if(_instance == null){
+          _instance == MyDatabase();
+       }
+       return _instance;
+   }
+
+   MyDatabase() : super(_openConnection());
+
+  @override
+  // TODO: implement schemaVersion
+  int get schemaVersion => throw UnimplementedError();
 
    Future<List<MovieData>> getMovies() => select(movie).get();
    Stream<List<MovieData>> watchMovies() => select(movie).watch();
@@ -24,3 +49,4 @@ class AppDatabase extends _$AppDatabase {
    Future deleteMovie(MovieData data) => delete(movie).delete(data);
    Future deleteAllMovies() => delete(movie).go();
 }
+

@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(top: 8,left: 8,right: 4,bottom: 8),
               child: Row(
                 children: [
                   Image.asset("assets/icons/list.png",height: 30,width: 30,),
@@ -292,29 +292,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SizedBox(
       height: 30,
-      child: Expanded(
-        child: ListView.builder(
-          shrinkWrap: true,
-          scrollDirection: Axis.horizontal,
-          itemCount: emptyList.length,
-          itemBuilder: (context,position){
-            return Card(
-              color: const Color(0xFF88A4E8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(right: 10,left: 10),
-                child: Text(emptyList[position],style: const TextStyle(color: Colors.white,
-                    fontFamily: 'mulish_bold'),),
-              ),
-            );
-          },
-        ),
+      width: double.infinity,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: emptyList.length,
+        itemBuilder: (context,position){
+          return Card(
+            color: const Color(0xFF88A4E8),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8)
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10,left: 10),
+              child: Text(emptyList[position],style: const TextStyle(color: Colors.white,
+                  fontFamily: 'mulish_bold'),),
+            ),
+          );
+        },
       ),
     );
   }
 }
-
-
 
