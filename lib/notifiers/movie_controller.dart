@@ -17,7 +17,6 @@ class MovieController extends ChangeNotifier {
    static AuthService authService  = AuthService();
 
 
-
    static getMoviesGenre() {
      return authService.getMovieGenre();
    }

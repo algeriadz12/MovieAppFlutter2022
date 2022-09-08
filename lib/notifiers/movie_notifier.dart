@@ -6,15 +6,15 @@ import 'package:pop_corn_flix/moor/moor_repository.dart';
 import 'package:pop_corn_flix/movie_state.dart';
 
 class MovieNotifier extends StateNotifier<MovieState> {
-  MovieNotifier(MovieState state) : super(const MovieState()) {
+
+  MovieNotifier() : super(const MovieState()) {
     readData();
   }
 
-  final Repository _repository = Repository();
+   final Repository _repository = Repository();
 
-
-  void writeData(MovieData movieData) async {
-    state = state.copyWith(isLoading : true);
+   void writeData(MovieData movieData) async {
+     state = state.copyWith(isLoading : true);
     await _repository.insertMovie(movieData);
     readData();
   }
@@ -39,7 +39,6 @@ class MovieNotifier extends StateNotifier<MovieState> {
       isReadyData: true,
       movies: movies
     );
-
   }
 
 }

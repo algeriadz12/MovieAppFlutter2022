@@ -6,13 +6,17 @@ import 'package:pop_corn_flix/moor/moor_helper.dart';
 import '../movie_state.dart';
 import '../notifiers/movie_notifier.dart';
 
-var moviesProvider  = StateNotifierProvider((ref) => MovieNotifier(const MovieState()));
+
+final moviesProvider  = StateNotifierProvider((ref) =>  MovieNotifier());
 
 class FavMoviesScreen extends ConsumerWidget {
+  const FavMoviesScreen({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+    Widget build(BuildContext context,WidgetRef ref) {
     var provider = ref.watch(moviesProvider.notifier);
     var providerState = ref.watch(moviesProvider.notifier).state;
+    print("Data${providerState.movies.toString()}");
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -32,9 +36,10 @@ class FavMoviesScreen extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: providerState.isReadyData ?
-              ListView.builder(
-                itemCount: providerState.movies?.length,
+              child: providerState.isLoading ?
+              const Center(child: CircularProgressIndicator(color: Colors.orange,),) :
+              providerState.isReadyData ? ListView.builder(
+                itemCount: ref.read(moviesProvider.notifier).state.movies!.length,
                 itemBuilder: (context,index){
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -76,7 +81,6 @@ class FavMoviesScreen extends ConsumerWidget {
                                           color: Color(0xFF9C9C9C)),))
                                     ],
                                   ),
-
                                 ),
                                 const SizedBox(height: 10,),
                                 Text(providerState.movies![index].releaseDate,style: const TextStyle(fontFamily: 'mulish_bold'),)
@@ -89,9 +93,7 @@ class FavMoviesScreen extends ConsumerWidget {
                   );
                 },
               ) :
-              const Center(
-                child: Text("No Movies Added"),
-              ),
+              const Center(child: CircularProgressIndicator(color: Colors.orange,),),
             )
           ],
         ),

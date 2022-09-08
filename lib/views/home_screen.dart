@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   IconButton(
                       onPressed: (){
-                        Get.to(() => FavMoviesScreen());
+                        Get.to(() => const FavMoviesScreen());
                       },
                       icon: const Icon(Icons.star_rate_outlined,color: Colors.orange,))
                 ],
