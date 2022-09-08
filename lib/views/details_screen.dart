@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:get/get.dart';
 import 'package:pop_corn_flix/models/genres/MovieGenre.dart';
 import 'package:pop_corn_flix/moor/moor_helper.dart';
 import 'package:pop_corn_flix/movie_state.dart';
 import 'package:pop_corn_flix/notifiers/movie_controller.dart';
 import 'package:pop_corn_flix/notifiers/movie_notifier.dart';
+import 'package:pop_corn_flix/views/home_screen.dart';
 import 'package:pop_corn_flix/views/videos_screen.dart';
 
 import '../models/details/Genres.dart';
@@ -55,8 +55,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         Positioned(
                           top: 40,
                           left: 20,
-                          child: Image.asset("assets/icons/back_arrow.png",height: 30,width: 30,
-                            color: Colors.white,
+                          child: GestureDetector(
+                            onTap: (){
+                              Get.off(() => const HomeScreen());
+                            },
+                            child: Image.asset("assets/icons/back_arrow.png",height: 30,width: 30,
+                              color: Colors.white,
+                            ),
                           ),
                         )
                       ],
@@ -104,11 +109,13 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                   icon: const Icon(Icons.bookmark,size: 25,color: Colors.black,)),
                               IconButton(
                                   onPressed: (){
-                                    Get.to(() => const VideoScreen(),
-                                    arguments: [
-                                      {'title' : movieDetails.title},
-                                      {"movieId " : movieId}
-                                    ]);
+                                    Map<String,dynamic> params =
+                                    {
+                                      'title': movieDetails.title,
+                                      'movieId': movieId,
+                                    };
+                                    Get.to(() => const VideoScreen(),arguments: params);
+
                                   },
                                   icon: Image.asset("assets/icons/youtube.png"))
                             ],

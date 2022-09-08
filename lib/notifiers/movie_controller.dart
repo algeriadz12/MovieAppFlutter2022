@@ -16,9 +16,7 @@ class MovieController extends ChangeNotifier {
    static List<Results>? list = [];
    static AuthService authService  = AuthService();
 
-   static getNowShowing() {
-       return authService.getNowShowing();
-   }
+
 
    static getMoviesGenre() {
      return authService.getMovieGenre();
@@ -28,8 +26,8 @@ class MovieController extends ChangeNotifier {
      return authService.getMovieDetails(id);
    }
 
-   static var nowShowingProvider = FutureProvider<MovieModel?>((ref){
-     return getNowShowing();
+   static var nowShowingProvider = FutureProvider.family<MovieModel?,int>((ref,page){
+     return authService.getNowShowing(page);
    });
 
    static var popularMoviesProvider = FutureProvider.family<MovieModel?,int>((ref,page){

@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:pop_corn_flix/models/MovieModel.dart';
 import 'package:pop_corn_flix/notifiers/movie_controller.dart';
-import 'package:get/get.dart';
 import 'package:pop_corn_flix/views/fav_movies.dart';
+import 'package:pop_corn_flix/views/show_all_screen.dart';
 import '../models/genres/Genres.dart';
+import '../utils.dart';
+import 'package:pop_corn_flix/models/Results.dart';
+import 'package:http/http.dart' as http;
 import 'details_screen.dart';
 
 
@@ -17,20 +23,39 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var counter = 1;
-  final ScrollController _scrollController = ScrollController();
+  bool isFirstLoad = true;
+  bool isProgressLoading = false;
+  List<Results>? popularMoviesList  = [];
+  var hasNextPage = 2;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    // _scrollController.addListener(() {
-    //    if(_scrollController.position.maxScrollExtent == _scrollController.position.pixels){
-    //       setState(() {
-    //         counter++;
-    //
-    //       });
-    //    }
-    // });
+    _scrollController = ScrollController();
+    _scrollController.addListener(() async {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+        setState(() {
+          isProgressLoading = true;
+        });
+        _loadMore(hasNextPage);
+      }
+    });
+  }
+
+  _loadMore(int page) async {
+    var response = await http.get(Uri.parse("${Utils.popularMoviesUrl}&page=$page"));
+    if(response.statusCode == 200){
+      var json = jsonDecode(response.body);
+      if(MovieModel.fromJson(json).results != null){
+        hasNextPage += 1;
+        setState(() {
+          isProgressLoading = false;
+          isFirstLoad = false;
+          popularMoviesList!.addAll(MovieModel.fromJson(json).results!);
+        });
+      }
+    }
   }
 
   @override
@@ -73,8 +98,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           BoxShadow(color: Colors.black54,spreadRadius: 0.5)
                         ]
                     ),
-                    child: const Text("see more",style: TextStyle(color: Color(0xFF110E47),fontSize: 10,
-                        fontFamily: 'mulish_regular'),),
+                    child: GestureDetector(
+                      onTap: (){
+                        Map<String,dynamic> map = {
+                          'type' : "NowShowing"
+                        };
+                        Get.to(() => const ShowAllScreen(),arguments: map);
+                      },
+                      child: const Text("see more",style: TextStyle(color: Color(0xFF110E47),fontSize: 10,
+                          fontFamily: 'mulish_regular'),),
+                    ),
                   )
                 ],
               ),
@@ -84,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 300,
               child: Consumer(
                 builder: (context,ref,_){
-                  var nowShowingMovies = ref.watch(MovieController.nowShowingProvider).value;
+                  var nowShowingMovies = ref.watch(MovieController.nowShowingProvider(1)).value;
                   if(nowShowingMovies != null){
                     return ListView.builder(
                       shrinkWrap: true,
@@ -92,42 +125,50 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: nowShowingMovies.results!.length,
                       itemBuilder: (context,index){
                         var finalResult = nowShowingMovies.results;
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Material(
-                                elevation: 6,
-                                shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                clipBehavior: Clip.antiAlias,
-                                child: ClipRRect(
-                                  borderRadius : BorderRadius.circular(8),
-                                  child: Material(
-                                    child: Image.network("http://image.tmdb.org/t/p/w500/${finalResult![index].posterPath!}",
-                                      height: 200,width : 150 ,fit: BoxFit.cover,),
+                        return GestureDetector(
+                          onTap: (){
+                            Get.to(() =>  const DetailsScreen(),
+                                arguments: [{"movieId" : nowShowingMovies.results![index].id}]);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Material(
+                                  elevation: 6,
+                                  shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: ClipRRect(
+                                    borderRadius : BorderRadius.circular(8),
+                                    child: Material(
+                                      child: finalResult![index].posterPath != null ?
+                                      Image.network("http://image.tmdb.org/t/p/w500/${finalResult[index].posterPath!}",
+                                        height: 200,width : 150 ,fit: BoxFit.cover,) :
+                                      Image.asset("assets/images/error_image.png",height: 200,width: 150,fit: BoxFit.cover,),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                width: 150,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 10,left: 4,right: 4),
-                                  child: Text(finalResult[index].title!,style: const TextStyle(fontFamily: 'mulish_bold',
-                                      fontWeight: FontWeight.bold),),
-                                ),),
-                              const SizedBox(height: 5,),
-                              SizedBox(
-                                width: 150,
-                                child: Row(
-                                  children: [
-                                    Image.asset("assets/icons/rating.png",height: 20,width: 20,),
-                                    Expanded(child: Text("${finalResult[index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
-                                        color: Color(0xFF9C9C9C)),))
-                                  ],
-                                ),
-                              )
-                            ],
+                                SizedBox(
+                                  width: 150,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 10,left: 4,right: 4),
+                                    child: Text(finalResult[index].title!,style: const TextStyle(fontFamily: 'mulish_bold',
+                                        fontWeight: FontWeight.bold),),
+                                  ),),
+                                const SizedBox(height: 5,),
+                                SizedBox(
+                                  width: 150,
+                                  child: Row(
+                                    children: [
+                                      Image.asset("assets/icons/rating.png",height: 20,width: 20,),
+                                      Expanded(child: Text("${finalResult[index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
+                                          color: Color(0xFF9C9C9C)),))
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         );
                       },
@@ -156,29 +197,43 @@ class _HomeScreenState extends State<HomeScreen> {
                           BoxShadow(color: Colors.black54,spreadRadius: 0.5)
                         ]
                     ),
-                    child: const Text("see more",style: TextStyle(color: Color(0xFF110E47),fontSize: 10,
-                        fontFamily: 'mulish_regular'),),
+                    child: GestureDetector(
+                      onTap: (){
+                        Map<String,dynamic> map = {
+                          'type' : "popular"
+                        };
+                        Get.to(() => const ShowAllScreen(),arguments: map);
+                      },
+                      child: const Text("see more",style: TextStyle(color: Color(0xFF110E47),fontSize: 10,
+                          fontFamily: 'mulish_regular'),),
+                    ),
                   )
                 ],
               ),
             ),
             const SizedBox(height: 10,),
-            Expanded(
-              child: Consumer(
-                builder: (context,ref,_){
-                  var popularMovies = ref.watch(MovieController.popularMoviesProvider(counter)).value;
-                  if(popularMovies != null){
-                    return ListView.builder(
+            Expanded(child: Consumer(
+              builder: (context,ref,_){
+                if(isFirstLoad){
+                  Fluttertoast.showToast(msg: "Called");
+                  if(ref.watch(MovieController.popularMoviesProvider(1)).value != null
+                      && ref.watch(MovieController.popularMoviesProvider(1)).value?.results != null){
+                    popularMoviesList = ref.watch(MovieController.popularMoviesProvider(1)).value?.results;
+                  }
+                }
+                return  Column(
+                  children: [
+                    Expanded(child: ListView.builder(
                       shrinkWrap: true,
                       controller: _scrollController,
                       scrollDirection: Axis.vertical,
-                      itemCount: popularMovies.results!.length,
+                      itemCount: popularMoviesList!.length,
                       itemBuilder: (context,index){
                         return GestureDetector(
                           onTap: (){
                             Get.to(() =>  const DetailsScreen(),
                                 arguments: [
-                                  {"movieId" : popularMovies.results![index].id}
+                                  {"movieId" : popularMoviesList![index].id}
                                 ]);
                           },
                           child: Padding(
@@ -192,8 +247,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: ClipRRect(
                                     borderRadius : BorderRadius.circular(8),
                                     child: Material(
-                                      child: Image.network("http://image.tmdb.org/t/p/w500/${popularMovies.results![index].backdropPath}",
-                                        height: 170,width : 120 ,fit: BoxFit.cover,),
+                                      child: popularMoviesList![index].backdropPath != null ?
+                                      Image.network("http://image.tmdb.org/t/p/w500/${popularMoviesList![index].backdropPath}",
+                                        height: 170,width : 120 ,fit: BoxFit.cover,) :
+                                      Image.asset("assets/images/error_image.png", height: 170,width : 120 ,fit: BoxFit.cover,),
                                     ),
                                   ),
                                 ),
@@ -206,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         SizedBox(
                                           width : 250,
-                                          child: Text(popularMovies.results![index].title!,style: const TextStyle(
+                                          child: Text(popularMoviesList![index].title!,style: const TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'mulish_bold'
@@ -218,7 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Row(
                                             children: [
                                               Image.asset("assets/icons/rating.png",height: 20,width: 20,),
-                                              Expanded(child: Text("${popularMovies.results![index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
+                                              Expanded(child: Text("${popularMoviesList![index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
                                                   color: Color(0xFF9C9C9C)),))
                                             ],
                                           ),
@@ -229,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           builder: (context,ref,_){
                                             var genres = ref.watch(MovieController.moviesGenreProvider).value;
                                             if(genres != null){
-                                              return showGenres(index,genres.genres,popularMovies);
+                                              return showGenres(index,genres.genres,popularMoviesList);
                                             } else {
                                               return const Center(
                                                 child: SizedBox(
@@ -251,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           color: Colors.green.shade400,
                                           child :  Padding(
                                             padding: const EdgeInsets.all(4.0),
-                                            child: Text(popularMovies.results![index].releaseDate!,style: const TextStyle(fontFamily: 'mulish_regular',
+                                            child: Text(popularMoviesList![index].releaseDate!,style: const TextStyle(fontFamily: 'mulish_regular',
                                                 color: Colors.white,fontSize: 13),),
                                           ),
                                         )
@@ -264,26 +321,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-                    );
-                  }
-                  else {
-                    return const Center(
-                      child: CircularProgressIndicator(color: Colors.orange,),
-                    );
-                  }
-                },
-              ),
-            )
+                    )),
+                    Visibility(
+                      visible : isProgressLoading,
+                      child:  const Align(
+                        alignment: Alignment.bottomCenter,
+                        child:  Padding(
+                          padding: EdgeInsets.only(top: 2,bottom: 2),
+                          child: CircularProgressIndicator(color: Colors.deepOrange,),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              },
+            ))
           ],
         ),
       ),
     );
   }
 
-  Widget showGenres(index,List<Genres>? genres, MovieModel movies) {
+  Widget showGenres(index,List<Genres>? genres, List<Results>? movies) {
     var emptyList = [];
     for (var genre in genres!) {
-      movies.results![index].genreIds?.forEach((genre2) {
+      movies![index].genreIds?.forEach((genre2) {
         if(genre.id! == genre2){
           emptyList.add(genre.name!);
         }
@@ -314,5 +376,5 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
+}

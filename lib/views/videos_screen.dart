@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:pop_corn_flix/views/tabs/featurette_screen.dart';
 import 'package:pop_corn_flix/views/tabs/teaser_screen.dart';
@@ -12,10 +13,10 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> with TickerProviderStateMixin{
-  int movieId = 0;
-  String movieTitle = '';
+  int currentIndex = 0;
+  String? movieTitle = '';
   late TabController _tabController;
-  final _screens = [
+  final _screens = <ConsumerWidget>[
     const FeaturetteScreen(),
     const TeaserScreen(),
     const TrailerScreen()
@@ -25,10 +26,9 @@ class _VideoScreenState extends State<VideoScreen> with TickerProviderStateMixin
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    movieTitle = Get.arguments[0]['title'];
-    //movieId = Get.arguments[1]['movieId'];
-
+     movieTitle = Get.arguments['title'];
   }
+
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -38,7 +38,7 @@ class _VideoScreenState extends State<VideoScreen> with TickerProviderStateMixin
            children: [
              Center(child: Padding(
                padding: const EdgeInsets.only(top: 20,left: 50,right: 50),
-               child: Text(movieTitle,style: const TextStyle(fontFamily: 'merriweather',color: Colors.white,fontSize: 20),
+               child: Text(movieTitle!,style: const TextStyle(fontFamily: 'merriweather',color: Colors.white,fontSize: 20),
                textAlign: TextAlign.center,),
              )),
              Padding(

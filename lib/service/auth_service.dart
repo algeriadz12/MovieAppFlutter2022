@@ -11,8 +11,8 @@ import '../models/videos/VideoModel.dart';
 
 class AuthService {
   
-  Future<MovieModel?> getNowShowing() async {
-     var response = await http.get(Uri.parse(Utils.nowShowingUrl));
+  Future<MovieModel?> getNowShowing(int page) async {
+    var response = await http.get(Uri.parse("${Utils.nowShowingUrl}&page=$page"));
      if(response.statusCode == 200){
        var json = jsonDecode(response.body);
        return MovieModel.fromJson(json);
