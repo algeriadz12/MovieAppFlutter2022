@@ -215,125 +215,130 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(child: Consumer(
               builder: (context,ref,_){
                 if(isFirstLoad){
-                  Fluttertoast.showToast(msg: "Called");
                   if(ref.watch(MovieController.popularMoviesProvider(1)).value != null
                       && ref.watch(MovieController.popularMoviesProvider(1)).value?.results != null){
                     popularMoviesList = ref.watch(MovieController.popularMoviesProvider(1)).value?.results;
                   }
                 }
-                return  Column(
-                  children: [
-                    Expanded(child: ListView.builder(
-                      shrinkWrap: true,
-                      controller: _scrollController,
-                      scrollDirection: Axis.vertical,
-                      itemCount: popularMoviesList!.length,
-                      itemBuilder: (context,index){
-                        return GestureDetector(
-                          onTap: (){
-                            Get.to(() =>  const DetailsScreen(),
-                                arguments: [
-                                  {"movieId" : popularMoviesList![index].id}
-                                ]);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                Material(
-                                  elevation: 4,
-                                  shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: ClipRRect(
-                                    borderRadius : BorderRadius.circular(8),
-                                    child: Material(
-                                      child: popularMoviesList![index].backdropPath != null ?
-                                      Image.network("http://image.tmdb.org/t/p/w500/${popularMoviesList![index].backdropPath}",
-                                        height: 170,width : 120 ,fit: BoxFit.cover,) :
-                                      Image.asset("assets/images/error_image.png", height: 170,width : 120 ,fit: BoxFit.cover,),
+                if(popularMoviesList != null){
+                  return  Column(
+                    children: [
+                      Expanded(child: ListView.builder(
+                        shrinkWrap: true,
+                        controller: _scrollController,
+                        scrollDirection: Axis.vertical,
+                        itemCount: popularMoviesList!.length,
+                        itemBuilder: (context,index){
+                          return GestureDetector(
+                            onTap: (){
+                              Get.to(() =>  const DetailsScreen(),
+                                  arguments: [
+                                    {"movieId" : popularMoviesList![index].id}
+                                  ]);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Material(
+                                    elevation: 4,
+                                    shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: ClipRRect(
+                                      borderRadius : BorderRadius.circular(8),
+                                      child: Material(
+                                        child: popularMoviesList![index].backdropPath != null ?
+                                        Image.network("http://image.tmdb.org/t/p/w500/${popularMoviesList![index].backdropPath}",
+                                          height: 170,width : 120 ,fit: BoxFit.cover,) :
+                                        Image.asset("assets/images/error_image.png", height: 170,width : 120 ,fit: BoxFit.cover,),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        SizedBox(
-                                          width : 250,
-                                          child: Text(popularMoviesList![index].title!,style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'mulish_bold'
-                                          ),maxLines: 2,),
-                                        ),
-                                        const SizedBox(height: 10,),
-                                        SizedBox(
-                                          width: 150,
-                                          child: Row(
-                                            children: [
-                                              Image.asset("assets/icons/rating.png",height: 20,width: 20,),
-                                              Expanded(child: Text("${popularMoviesList![index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
-                                                  color: Color(0xFF9C9C9C)),))
-                                            ],
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          SizedBox(
+                                            width : 250,
+                                            child: Text(popularMoviesList![index].title!,style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'mulish_bold'
+                                            ),maxLines: 2,),
                                           ),
+                                          const SizedBox(height: 10,),
+                                          SizedBox(
+                                            width: 150,
+                                            child: Row(
+                                              children: [
+                                                Image.asset("assets/icons/rating.png",height: 20,width: 20,),
+                                                Expanded(child: Text("${popularMoviesList![index].voteAverage}/10 Imdb",style: const TextStyle(fontFamily: 'mulish_regular',
+                                                    color: Color(0xFF9C9C9C)),))
+                                              ],
+                                            ),
 
-                                        ),
-                                        const SizedBox(height: 10,),
-                                        Consumer(
-                                          builder: (context,ref,_){
-                                            var genres = ref.watch(MovieController.moviesGenreProvider).value;
-                                            if(genres != null){
-                                              return showGenres(index,genres.genres,popularMoviesList);
-                                            } else {
-                                              return const Center(
-                                                child: SizedBox(
-                                                  height: 2,
-                                                  width: 100,
-                                                  child: LinearProgressIndicator(
-                                                    color: Colors.green,
+                                          ),
+                                          const SizedBox(height: 10,),
+                                          Consumer(
+                                            builder: (context,ref,_){
+                                              var genres = ref.watch(MovieController.moviesGenreProvider).value;
+                                              if(genres != null){
+                                                return showGenres(index,genres.genres,popularMoviesList);
+                                              } else {
+                                                return const Center(
+                                                  child: SizedBox(
+                                                    height: 2,
+                                                    width: 100,
+                                                    child: LinearProgressIndicator(
+                                                      color: Colors.green,
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                        const SizedBox(height: 10,),
-                                        Card(
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8)
+                                                );
+                                              }
+                                            },
                                           ),
-                                          color: Colors.green.shade400,
-                                          child :  Padding(
-                                            padding: const EdgeInsets.all(4.0),
-                                            child: Text(popularMoviesList![index].releaseDate!,style: const TextStyle(fontFamily: 'mulish_regular',
-                                                color: Colors.white,fontSize: 13),),
-                                          ),
-                                        )
-                                      ],
+                                          const SizedBox(height: 10,),
+                                          Card(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8)
+                                            ),
+                                            color: Colors.green.shade400,
+                                            child :  Padding(
+                                              padding: const EdgeInsets.all(4.0),
+                                              child: Text(popularMoviesList![index].releaseDate!,style: const TextStyle(fontFamily: 'mulish_regular',
+                                                  color: Colors.white,fontSize: 13),),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                )
-                              ],
+                                  )
+                                ],
+                              ),
                             ),
+                          );
+                        },
+                      )),
+                      Visibility(
+                        visible : isProgressLoading,
+                        child:  const Align(
+                          alignment: Alignment.bottomCenter,
+                          child:  Padding(
+                            padding: EdgeInsets.only(top: 2,bottom: 2),
+                            child: CircularProgressIndicator(color: Colors.deepOrange,),
                           ),
-                        );
-                      },
-                    )),
-                    Visibility(
-                      visible : isProgressLoading,
-                      child:  const Align(
-                        alignment: Alignment.bottomCenter,
-                        child:  Padding(
-                          padding: EdgeInsets.only(top: 2,bottom: 2),
-                          child: CircularProgressIndicator(color: Colors.deepOrange,),
                         ),
-                      ),
-                    )
-                  ],
-                );
+                      )
+                    ],
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Colors.orange,),
+                  );
+                }
               },
             ))
           ],

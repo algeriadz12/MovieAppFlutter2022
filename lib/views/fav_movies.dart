@@ -7,7 +7,7 @@ import '../movie_state.dart';
 import '../notifiers/movie_notifier.dart';
 
 
-final moviesProvider  = StateNotifierProvider((ref) =>  MovieNotifier());
+final moviesProvider  = StateNotifierProvider.autoDispose((ref) =>  MovieNotifier());
 
 class FavMoviesScreen extends ConsumerWidget {
   const FavMoviesScreen({Key? key}) : super(key: key);
@@ -95,7 +95,7 @@ class FavMoviesScreen extends ConsumerWidget {
                   );
                 },
               ) :
-              const Center(child: CircularProgressIndicator(color: Colors.orange,),),
+              const Center(child: Text('No Movies Added Yet'),),
             )
           ],
         ),

@@ -1,6 +1,7 @@
 
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:pop_corn_flix/moor/moor_helper.dart';
 import 'package:pop_corn_flix/moor/moor_repository.dart';
 import 'package:pop_corn_flix/movie_state.dart';
@@ -9,6 +10,7 @@ class MovieNotifier extends StateNotifier<MovieState> {
 
   MovieNotifier() : super(const MovieState()) {
     readData();
+
   }
 
    final Repository _repository = Repository();

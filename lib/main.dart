@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:pop_corn_flix/moor/moor_helper.dart';
 import 'package:pop_corn_flix/views/start_screen.dart';
+
 
 void main() {
   runApp(const ProviderScope(

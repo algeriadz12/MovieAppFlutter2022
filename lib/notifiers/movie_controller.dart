@@ -17,36 +17,28 @@ class MovieController extends ChangeNotifier {
    static AuthService authService  = AuthService();
 
 
-   static getMoviesGenre() {
-     return authService.getMovieGenre();
-   }
-
-   static getMovieDetails(int id) {
-     return authService.getMovieDetails(id);
-   }
-
-   static var nowShowingProvider = FutureProvider.family<MovieModel?,int>((ref,page){
+   static var nowShowingProvider = FutureProvider.autoDispose.family<MovieModel?,int>((ref,page){
      return authService.getNowShowing(page);
    });
 
-   static var popularMoviesProvider = FutureProvider.family<MovieModel?,int>((ref,page){
+   static var popularMoviesProvider = FutureProvider.autoDispose.family<MovieModel?,int>((ref,page){
      return authService.getPopularMovies(page);
    });
 
-   static var moviesGenreProvider = FutureProvider<MovieGenre?>((ref){
-     return getMoviesGenre();
+   static var moviesGenreProvider = FutureProvider.autoDispose<MovieGenre?>((ref){
+     return authService.getMovieGenre();
    });
 
-   static var movieDetailsProvider = FutureProvider.family<DetailsModel?,int>((ref,movieId){
+   static var movieDetailsProvider = FutureProvider.autoDispose.family<DetailsModel?,int>((ref,movieId){
      return authService.getMovieDetails(movieId);
    });
 
-   static var movieCastingProvider = FutureProvider.family<CastModel?,int>((ref,movieId){
+   static var movieCastingProvider = FutureProvider.autoDispose.family<CastModel?,int>((ref,movieId){
      return authService.getMovieCasting(movieId);
    });
 
    // get data
-   static var movieVideosProvider = FutureProvider.family<List<Results>?,VideoType>((ref,videoType)  {
+   static var movieVideosProvider = FutureProvider.autoDispose.family<List<Results>?,VideoType>((ref,videoType)  {
       authService.getMovieVideos(videoType.movieId).then((value){
         list = value!.results!;
       });
