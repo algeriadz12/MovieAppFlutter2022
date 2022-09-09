@@ -93,8 +93,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               ),
                               IconButton(
                                   onPressed: (){
-                                    var data = providerState.movies;
-                                    for(var element in data!){
+                                    for(var element in providerState.movies!){
                                       if(element.movieId == movieId){
                                         setState(() {
                                           bookmark = Icons.bookmark_border;
