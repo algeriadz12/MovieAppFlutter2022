@@ -14,7 +14,9 @@ class FavMoviesScreen extends ConsumerWidget {
 
   @override
     Widget build(BuildContext context,WidgetRef ref) {
+    // Provider only to access methods
     var provider = ref.watch(moviesProvider.notifier);
+    // States ( isLoadig  , isReadyData )
     var providerState = ref.watch(moviesProvider.notifier).state;
     print("Data${providerState.movies.toString()}");
     return Scaffold(

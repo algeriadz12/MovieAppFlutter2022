@@ -42,6 +42,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
           var movieCasting = ref.watch(MovieController.movieCastingProvider(movieId)).value;
           var provider = ref.watch(moviesProvider.notifier);
           var providerState = ref.watch(moviesProvider.notifier).state;
+          for(var element in providerState.movies!){
+            if(element.movieId == movieId){
+              bookmark = Icons.bookmark_border;
+              break;
+            }
+            else {
+              bookmark = Icons.bookmark;
+            }
+          }
           if(genres != null &&  movieDetails != null &&  movieCasting != null ){
             return SingleChildScrollView(
               child: Column(
@@ -84,14 +93,36 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               ),
                               IconButton(
                                   onPressed: (){
-                                    ref.read(moviesProvider.notifier).writeData(MovieData(
-                                        rowID: movieId,
-                                        title: movieDetails.title!,
-                                        posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
-                                        rating: movieDetails.voteAverage.toString(),
-                                        releaseDate : movieDetails.releaseDate!,
-                                        movieId: movieDetails.id!));
-                                    Fluttertoast.showToast(msg: "Movie Successfully Saved..");
+                                    var data = providerState.movies;
+                                    for(var element in data!){
+                                      if(element.movieId == movieId){
+                                        setState(() {
+                                          bookmark = Icons.bookmark_border;
+                                        });
+                                        provider.deleteMovie(MovieData(
+                                            rowID: element.movieId,
+                                            title: movieDetails.title!,
+                                            posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
+                                            rating: movieDetails.voteAverage.toString(),
+                                            releaseDate : movieDetails.releaseDate!,
+                                            movieId: movieDetails.id!));
+                                        Fluttertoast.showToast(msg: "Movie Successfully Removed..");
+                                        break;
+                                      }
+                                      else {
+                                        setState(() {
+                                          bookmark = Icons.bookmark;
+                                        });
+                                        provider.writeData(MovieData(
+                                            rowID: movieId,
+                                            title: movieDetails.title!,
+                                            posterUrl: "http://image.tmdb.org/t/p/w500/${movieDetails.posterPath!}",
+                                            rating: movieDetails.voteAverage.toString(),
+                                            releaseDate : movieDetails.releaseDate!,
+                                            movieId: movieDetails.id!));
+                                        Fluttertoast.showToast(msg: "Movie Successfully Saved..");
+                                      }
+                                    }
                                   },
                                   icon: Icon(bookmark,size: 25,color: Colors.black)),
                               IconButton(
