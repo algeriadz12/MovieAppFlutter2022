@@ -13,7 +13,6 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> with TickerProviderStateMixin{
-  int currentIndex = 0;
   String? movieTitle = '';
   late TabController _tabController;
   final _screens = <ConsumerWidget>[
